@@ -4,8 +4,8 @@ from collections.abc import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 
-from phase_0_baseline.model import EchoRequest, EchoResponse
 from phase_0_baseline.config import settings
+from phase_0_baseline.model import EchoRequest, EchoResponse
 
 app = FastAPI(title=settings.app_name)
 
