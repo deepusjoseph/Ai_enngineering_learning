@@ -9,6 +9,7 @@ from fastapi.responses import StreamingResponse
 from phase_0_baseline.config import Settings, settings
 from phase_0_baseline.dependencies import get_settings
 from phase_0_baseline.logging_config import configure_logging
+from phase_0_baseline.middleware import RequestLoggingMiddleware
 from phase_0_baseline.model import EchoRequest, EchoResponse
 
 configure_logging()
@@ -26,6 +27,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
+
+app.add_middleware(RequestLoggingMiddleware)
 
 
 @app.get("/")
