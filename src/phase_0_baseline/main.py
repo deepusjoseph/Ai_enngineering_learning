@@ -3,7 +3,7 @@ import logging
 from collections.abc import AsyncGenerator, AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import Depends,FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.responses import StreamingResponse
 
 from phase_0_baseline.config import Settings, settings
@@ -15,13 +15,15 @@ configure_logging()
 
 logger = logging.getLogger(__name__)
 
+
 @asynccontextmanager
-async def lifespan(app: FastAPI)-> AsyncIterator[None]:
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     logger.info("Application starting")
 
     yield
 
     logger.info("Application shutting down")
+
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
 
@@ -58,7 +60,9 @@ async def stream() -> StreamingResponse:
 
 
 @app.get("/config")
-async def get_config( app_settings: Settings = Depends(get_settings),) -> dict[str, str]:
+async def get_config(
+    app_settings: Settings = Depends(get_settings),
+) -> dict[str, str]:
     return {
         "app_name": app_settings.app_name,
         "environment": app_settings.environment,
