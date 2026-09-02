@@ -3,10 +3,11 @@ import logging
 from collections.abc import AsyncGenerator, AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends,FastAPI
 from fastapi.responses import StreamingResponse
 
-from phase_0_baseline.config import settings
+from phase_0_baseline.config import Settings, settings
+from phase_0_baseline.dependencies import get_settings
 from phase_0_baseline.logging_config import configure_logging
 from phase_0_baseline.model import EchoRequest, EchoResponse
 
@@ -57,9 +58,9 @@ async def stream() -> StreamingResponse:
 
 
 @app.get("/config")
-async def get_config() -> dict[str, str]:
+async def get_config( app_settings: Settings = Depends(get_settings),) -> dict[str, str]:
     return {
-        "app_name": settings.app_name,
-        "environment": settings.environment,
-        "log_level": settings.log_level,
+        "app_name": app_settings.app_name,
+        "environment": app_settings.environment,
+        "log_level": app_settings.log_level,
     }
