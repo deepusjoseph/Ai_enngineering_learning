@@ -1,6 +1,7 @@
 import asyncio
 import logging
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
@@ -13,7 +14,15 @@ configure_logging()
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title=settings.app_name)
+@asynccontextmanager
+async def lifespan(app: FastAPI)-> AsyncIterator[None]:
+    logger.info("Application starting")
+
+    yield
+
+    logger.info("Application shutting down")
+
+app = FastAPI(title=settings.app_name, lifespan=lifespan)
 
 
 @app.get("/")
