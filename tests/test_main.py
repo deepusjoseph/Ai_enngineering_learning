@@ -1,11 +1,7 @@
 from fastapi.testclient import TestClient
 
-from phase_0_baseline.main import app
 
-client = TestClient(app)
-
-
-def test_root() -> None:
+def test_root(client: TestClient) -> None:
     response = client.get("/")
 
     assert response.status_code == 200
@@ -14,7 +10,7 @@ def test_root() -> None:
     }
 
 
-def test_echo() -> None:
+def test_echo(client: TestClient) -> None:
     response = client.post(
         "/echo",
         json={
@@ -29,13 +25,13 @@ def test_echo() -> None:
     }
 
 
-def test_echo_requires_message() -> None:
+def test_echo_requires_message(client: TestClient) -> None:
     response = client.post("/echo", json={})
 
     assert response.status_code == 422
 
 
-def test_stream() -> None:
+def test_stream(client: TestClient) -> None:
     response = client.get("/stream")
 
     assert response.status_code == 200
