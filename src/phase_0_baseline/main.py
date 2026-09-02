@@ -3,7 +3,7 @@ import logging
 from collections.abc import AsyncGenerator, AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 
 from phase_0_baseline.config import Settings, settings
@@ -67,4 +67,17 @@ async def get_config(
         "app_name": app_settings.app_name,
         "environment": app_settings.environment,
         "log_level": app_settings.log_level,
+    }
+
+
+@app.get("/items/{item_id}")
+async def get_item(item_id: int) -> dict[str, int]:
+    if item_id != 1:
+        raise HTTPException(
+            status_code=404,
+            detail="Item not found",
+        )
+
+    return {
+        "item_id": item_id,
     }
