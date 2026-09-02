@@ -1,16 +1,14 @@
-import asyncio
 import logging
-from collections.abc import AsyncGenerator, AsyncIterator
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI
 
-from phase_0_baseline.config import Settings, settings
-from phase_0_baseline.dependencies import get_settings
+from phase_0_baseline.api.routes.demo import router as demo_router
+from phase_0_baseline.api.routes.health import router as health_router
+from phase_0_baseline.config import settings
 from phase_0_baseline.logging_config import configure_logging
 from phase_0_baseline.middleware import RequestLoggingMiddleware
-from phase_0_baseline.model import EchoRequest, EchoResponse
 
 configure_logging()
 
@@ -30,57 +28,5 @@ app = FastAPI(title=settings.app_name, lifespan=lifespan)
 
 app.add_middleware(RequestLoggingMiddleware)
 
-
-@app.get("/")
-async def root() -> dict[str, str]:
-    return {"message": "Phase 0 Baseline API is running"}
-
-
-@app.post("/echo", response_model=EchoResponse)
-async def echo(request: EchoRequest) -> EchoResponse:
-    logger.info("Echo request received")
-    return EchoResponse(
-        message=request.message,
-        length=len(request.message),
-    )
-
-
-async def generate_chunks() -> AsyncGenerator[str, None]:
-    chunks = ["Hello", " ", "from", " ", "streaming", "!"]
-
-    for chunk in chunks:
-        logger.debug("Sending stream chunk")
-        await asyncio.sleep(0.5)
-        yield chunk
-
-
-@app.get("/stream")
-async def stream() -> StreamingResponse:
-    return StreamingResponse(
-        generate_chunks(),
-        media_type="text/plain",
-    )
-
-
-@app.get("/config")
-async def get_config(
-    app_settings: Settings = Depends(get_settings),
-) -> dict[str, str]:
-    return {
-        "app_name": app_settings.app_name,
-        "environment": app_settings.environment,
-        "log_level": app_settings.log_level,
-    }
-
-
-@app.get("/items/{item_id}")
-async def get_item(item_id: int) -> dict[str, int]:
-    if item_id != 1:
-        raise HTTPException(
-            status_code=404,
-            detail="Item not found",
-        )
-
-    return {
-        "item_id": item_id,
-    }
+app.include_router(health_router)
+app.include_router(demo_router)
